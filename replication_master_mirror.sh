@@ -157,7 +157,7 @@ do
 	# Wait for slave to get started and have the correct status
 	sleep 2
 	# Check if replication status is OK
-	SLAVE_OK=$(mysql -h $MASTER_HOST "-u$USER" "-p$PASS" -e "SHOW SLAVE STATUS\G;" | grep 'Waiting for master')
+	SLAVE_OK=$(mysql -h localhost "-u$USER" "-p$PASS" -e "SHOW SLAVE STATUS\G;" | grep 'Waiting for master')
 	if [ -z "$SLAVE_OK" ]; then
 		echo "  - Error ! Wrong slave IO state."
 	else
