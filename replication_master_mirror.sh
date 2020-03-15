@@ -18,15 +18,15 @@
 
 
 
-DB=tester
+DB=testdb
 DUMP_FILE="/tmp/$DB-export-$(date +"%Y%m%d%H%M%S").sql"
 
 USER=root
 PASS=
 
-
-MASTER_HOST=10.9.96.4
-SLAVE_HOSTS=(10.9.96.3)
+LOCAL_HOST=localhost
+MASTER_HOST=10.9.96.3
+SLAVE_HOSTS=(10.9.96.4)
 
 ##
 # MASTER
@@ -140,12 +140,12 @@ for SLAVE_HOST in "${SLAVE_HOSTS[@]}"
 do
 	echo "SLAVE: $MASTER_HOST"
 	echo "  - Creating database copy"
-	mysql -h $MASTER_HOST "-u$USER" "-p$PASS" -e "DROP DATABASE IF EXISTS $DB; CREATE DATABASE $DB;"
+	mysql -h $LOCAL_HOST  "-u$USER" "-p$PASS" -e "DROP DATABASE IF EXISTS $DB; CREATE DATABASE $DB;"
 	scp $DUMP_FILE $MASTER_HOST:$DUMP_FILE >/dev/null
-	mysql -h $MASTER_HOST "-u$USER" "-p$PASS" $DB < $DUMP_FILE
+	mysql -h $LOCAL_HOST  "-u$USER" "-p$PASS" $DB < $DUMP_FILE
 
 	echo "  - Setting up slave replication"
-	mysql -h $MASTER_HOST "-u$USER" "-p$PASS" $DB <<-EOSQL &
+	mysql -h $LOCAL_HOST  "-u$USER" "-p$PASS" $DB <<-EOSQL &
 		STOP SLAVE;
 		CHANGE MASTER TO MASTER_HOST='$MASTER_HOST',
 		MASTER_USER='$USER',
@@ -157,7 +157,7 @@ do
 	# Wait for slave to get started and have the correct status
 	sleep 2
 	# Check if replication status is OK
-	SLAVE_OK=$(mysql -h localhost "-u$USER" "-p$PASS" -e "SHOW SLAVE STATUS\G;" | grep 'Waiting for master')
+	SLAVE_OK=$(mysql -h $LOCAL_HOST  "-u$USER" "-p$PASS" -e "SHOW SLAVE STATUS\G;" | grep 'Waiting for master')
 	if [ -z "$SLAVE_OK" ]; then
 		echo "  - Error ! Wrong slave IO state."
 	else
