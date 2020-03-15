@@ -18,7 +18,7 @@
 
 
 
-DB=tester
+DB=testdb
 DUMP_FILE="/tmp/$DB-export-$(date +"%Y%m%d%H%M%S").sql"
 
 USER=root
