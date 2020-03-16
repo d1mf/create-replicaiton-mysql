@@ -16,7 +16,7 @@
 #   - All hosts must be able to receive mysql commands remotely from the node executing this script
 #
  
-DB=djangodb
+DB=testdb
 DUMP_FILE="/tmp/$DB-export-$(date +"%Y%m%d%H%M%S").sql"
  
 USER=root
